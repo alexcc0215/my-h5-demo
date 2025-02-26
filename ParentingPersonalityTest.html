@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>育儿性格测试</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入 Animate.css -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .question {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            display: none; /* 默认隐藏 */
+        }
+        .question.active {
+            display: block; /* 显示当前题目 */
+            animation: fadeIn 0.5s ease;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+        .options label:hover {
+            background-color: #e9ecef;
+        }
+        .progress {
+            margin-bottom: 20px;
+            height: 20px;
+            border-radius: 10px;
+        }
+        .progress-bar {
+            background-color: #28a745;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .result {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="animate__animated animate__fadeInDown">育儿性格测试</h1>
+
+        <!-- 进度条 -->
+        <div class="progress">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+        </div>
+
+        <!-- 问题容器 -->
+        <div id="questionsContainer"></div>
+
+        <!-- 按钮组 -->
+        <div class="button-group">
+            <button class="btn btn-secondary" id="prevButton" onclick="prevQuestion()" style="display: none;">上一题</button>
+            <button class="btn btn-success" id="nextButton" onclick="nextQuestion()">下一题</button>
+        </div>
+
+        <!-- 结果显示 -->
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // 问题和选项数据
+        const questions = [
+            {
+                question: "1. 在家庭聚会时， 不敢站在众人面前讲故事。",
+                options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "2. 做事节奏慢，心态平和，不给自己施加压力。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+
+            },
+            {
+                question: "3. 觉得自己做了一件傻事，通常都要担心好久。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "4. 做事需要较大的推动力，不会主动表现自己。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "5.受到别人的耻笑，会感到非常难为情，却又不敢哭出来。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "6.从众心理较强， 喜欢大家一起做， 不愿意单独承担任务。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "7.为人随和，愿意配合别人，非常忍让。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "8. 极少反抗，态度平和，但是行动缓慢， 见效果很慢。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "9.除非被逼无奈，否则很少承诺，不愿意承担责任和风险。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+            {
+                question: "10.害怕被批评，受到批评后便立即妥协退让。",
+                 options: [
+                    { text: "是", score: 3 },
+                    { text: "偶尔", score: 2 },
+                    { text: "不是", score: 1 },
+                ],
+            },
+        ];
+
+
+        let currentQuestionIndex = 0; // 当前题目索引
+        let totalScore = 0; // 总分
+
+        // 动态生成问题和选项
+        function renderQuestions() {
+            const container = document.getElementById("questionsContainer");
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.className = "question";
+                questionDiv.id = `question${index}`;
+                questionDiv.innerHTML = `
+                    <p class="fw-bold">${q.question}</p>
+                    <div class="options" id="options${index}"></div>
+                `;
+                container.appendChild(questionDiv);
+
+                const optionsDiv = document.getElementById(`options${index}`);
+                q.options.forEach((option, optionIndex) => {
+                    const label = document.createElement("label");
+                    label.className = "form-check-label";
+                    label.innerHTML = `
+                        <input type="radio" class="form-check-input" name="q${index}" value="${option.score}">
+                        ${option.text}
+                    `;
+                    optionsDiv.appendChild(label);
+                });
+            });
+
+            // 显示第一题
+            showQuestion(currentQuestionIndex);
+            updateProgressBar();
+        }
+
+        // 显示指定题目
+        function showQuestion(index) {
+            const questions = document.querySelectorAll(".question");
+            questions.forEach((q, i) => {
+                if (i === index) {
+                    q.classList.add("active");
+                } else {
+                    q.classList.remove("active");
+                }
+            });
+
+            // 更新按钮状态
+            const prevButton = document.getElementById("prevButton");
+            const nextButton = document.getElementById("nextButton");
+            prevButton.style.display = index > 0 ? "block" : "none";
+            nextButton.textContent = index < questions.length - 1 ? "下一题" : "完成";
+        }
+
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
+        }
+
+        // 下一题逻辑
+        function nextQuestion() {
+            const selectedOption = document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`);
+            if (!selectedOption) {
+                alert("请选择一个答案！");
+                return;
+            }
+
+            // 累加分数
+            totalScore += parseInt(selectedOption.value);
+
+            // 切换到下一题
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(currentQuestionIndex);
+                updateProgressBar();
+            } else {
+                // 所有题目答完，显示结果
+                showResult();
+            }
+        }
+
+        // 上一题逻辑
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+                updateProgressBar();
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            const resultDiv = document.getElementById("result");
+            let resultText = "";
+             if (totalScore <= 15) {
+                resultText = "你不是一个内向型性格。";
+            } else if (totalScore <= 20) {
+                resultText = "你是一个偏亲切内向型性格。";
+            } else {
+                resultText = "你是一个亲切内向型性格.";
+            }
+
+
+            resultDiv.innerHTML = `
+                <h3 class="text-success">测试完成！</h3>
+                <p>你的总分是：<strong>${totalScore}</strong></p>
+                <p>${resultText}</p>
+            `;
+            resultDiv.classList.add("animate__animated", "animate__fadeIn");
+
+            // 隐藏按钮
+            document.getElementById("prevButton").style.display = "none";
+            document.getElementById("nextButton").style.display = "none";
+        }
+
+        // 初始化渲染
+        renderQuestions();
+    </script>
+</body>
+</html>
